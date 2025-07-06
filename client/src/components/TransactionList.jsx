@@ -4,7 +4,11 @@ import { deleteTransaction } from "../redux/transaction/transactionSlice.js";
 import { Button } from "./ui/button.jsx";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx";
 import { Trash2, Edit, DollarSign } from "lucide-react";
-import { formatCurrency, truncateText } from "../utils/formatters.js";
+import {
+  formatCurrency,
+  truncateText,
+  formatDate,
+} from "../utils/formatters.js";
 import Loading from "./Loading.jsx";
 import EmptyState from "./EmptyState.jsx";
 
@@ -102,7 +106,7 @@ export default function TransactionList({ onEdit }) {
                     )}
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    {format(new Date(transaction.date), "MMM dd, yyyy")}
+                    {formatDate(transaction.date)}
                   </span>
                 </div>
               </div>

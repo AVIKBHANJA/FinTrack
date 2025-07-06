@@ -108,3 +108,39 @@ export const truncateText = (text, maxLength = 50) => {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + "...";
 };
+
+/**
+ * Format a date to a readable string
+ * @param {Date|string} date - The date to format
+ * @param {string} format - The format pattern (default: "MMM dd, yyyy")
+ * @returns {string} Formatted date string
+ */
+export const formatDate = (date, formatPattern = "MMM dd, yyyy") => {
+  if (!date) return "";
+
+  const dateObj = new Date(date);
+  if (isNaN(dateObj.getTime())) return "";
+
+  // Simple date formatting without external dependencies
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const month = months[dateObj.getMonth()];
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const year = dateObj.getFullYear();
+
+  // Return in "MMM dd, yyyy" format
+  return `${month} ${day}, ${year}`;
+};
