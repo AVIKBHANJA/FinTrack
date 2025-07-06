@@ -4,13 +4,27 @@ import { deleteTransaction } from "../redux/transaction/transactionSlice.js";
 import { Button } from "./ui/button.jsx";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card.jsx";
 import { Trash2, Edit, DollarSign } from "lucide-react";
-import { format } from "date-fns";
+import { formatCurrency, truncateText } from "../utils/formatters.js";
+import Loading from "./Loading.jsx";
+import EmptyState from "./EmptyState.jsx";
 
+/**
+ * Transaction List Component
+ * Displays a list of user's transactions with edit and delete functionality
+ * Shows empty state when no transactions exist
+ *
+ * @param {Object} props
+ * @param {Function} props.onEdit - Callback function when edit button is clicked
+ */
 export default function TransactionList({ onEdit }) {
   const dispatch = useDispatch();
   const { transactions, loading } = useSelector((state) => state.transactions);
   const [deletingId, setDeletingId] = useState(null);
 
+  /**
+   * Handle transaction deletion with confirmation
+   * @param {string} id - Transaction ID to delete
+   */
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this transaction?")) {
       setDeletingId(id);
@@ -18,40 +32,26 @@ export default function TransactionList({ onEdit }) {
         await dispatch(deleteTransaction(id)).unwrap();
       } catch (error) {
         console.error("Error deleting transaction:", error);
+        // You could add a toast notification here
       } finally {
         setDeletingId(null);
       }
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
-
+  // Show loading state while fetching transactions
   if (loading && transactions.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-8">
-          <div className="text-muted-foreground">Loading transactions...</div>
-        </CardContent>
-      </Card>
-    );
+    return <Loading message="Loading transactions..." />;
   }
 
+  // Show empty state when no transactions exist
   if (transactions.length === 0) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-8">
-          <DollarSign className="h-12 w-12 text-muted-foreground mb-4" />
-          <div className="text-muted-foreground text-center">
-            <p className="text-lg font-medium">No transactions yet</p>
-            <p className="text-sm">Add your first transaction to get started</p>
-          </div>
-        </CardContent>
-      </Card>
+      <EmptyState
+        icon={<DollarSign className="h-12 w-12" />}
+        title="No transactions yet"
+        description="Add your first transaction to get started tracking your finances"
+      />
     );
   }
 
@@ -70,7 +70,7 @@ export default function TransactionList({ onEdit }) {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-sm">
-                    {transaction.description}
+                    {truncateText(transaction.description, 30)}
                   </h4>
                   <span
                     className={`font-bold ${

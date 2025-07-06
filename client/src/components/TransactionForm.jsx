@@ -33,6 +33,9 @@ export default function TransactionForm({ editTransaction, onClose }) {
 
   const [formErrors, setFormErrors] = useState({});
 
+  // Safe access to categories with fallback
+  const availableCategories = categories || { expense: [], income: [] };
+
   const validateForm = () => {
     const errors = {};
 
@@ -228,7 +231,7 @@ export default function TransactionForm({ editTransaction, onClose }) {
               }`}
             >
               <option value="">Select a category</option>
-              {categories[formData.type]?.map((category) => (
+              {availableCategories[formData.type]?.map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>

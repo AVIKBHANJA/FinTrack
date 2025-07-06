@@ -1,9 +1,23 @@
+// This file was used for seeding dummy data during development
+// Since the application now uses user authentication, each user should have their own data
+// This file is kept for reference but should not be used in production
+
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Transaction from "./models/transaction.model.js";
 
 dotenv.config();
 
+console.log("⚠️  Seed data functionality has been disabled.");
+console.log(
+  "💡 Each user now has their own personal data after authentication."
+);
+console.log(
+  "🚀 Start the application and create an account to begin tracking your finances!"
+);
+
+// The following dummy data has been commented out to prevent accidental seeding
+/*
 const DUMMY_TRANSACTIONS = [
   {
     amount: 1200,
@@ -62,3 +76,4 @@ async function seedData() {
 }
 
 seedData();
+*/

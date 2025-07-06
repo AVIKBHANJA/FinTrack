@@ -1,15 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { apiGet, apiPost, apiPut, apiDelete } from "../../utils/api.js";
 
-// Async thunks for API calls
+/**
+ * Transaction Redux Slice
+ * Manages all transaction-related state and API calls
+ * All API calls are authenticated and user-scoped
+ */
+
+// Async thunks for API calls with authentication
 export const fetchTransactions = createAsyncThunk(
   "transactions/fetchTransactions",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/transactions");
-      if (!response.ok) {
-        throw new Error("Failed to fetch transactions");
-      }
-      return await response.json();
+      return await apiGet("/api/transactions");
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -20,18 +23,7 @@ export const createTransaction = createAsyncThunk(
   "transactions/createTransaction",
   async (transactionData, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/transactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(transactionData),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create transaction");
-      }
-      return await response.json();
+      return await apiPost("/api/transactions", transactionData);
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -42,18 +34,7 @@ export const updateTransaction = createAsyncThunk(
   "transactions/updateTransaction",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/transactions/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to update transaction");
-      }
-      return await response.json();
+      return await apiPut(`/api/transactions/${id}`, data);
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -64,14 +45,8 @@ export const deleteTransaction = createAsyncThunk(
   "transactions/deleteTransaction",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/transactions/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to delete transaction");
-      }
-      return id;
+      await apiDelete(`/api/transactions/${id}`);
+      return id; // Return ID for state update
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -82,45 +57,31 @@ export const fetchMonthlyExpenses = createAsyncThunk(
   "transactions/fetchMonthlyExpenses",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/transactions/monthly-expenses");
-      if (!response.ok) {
-        throw new Error("Failed to fetch monthly expenses");
-      }
-      return await response.json();
+      return await apiGet("/api/transactions/monthly-expenses");
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-// Fetch categories
+// Fetch available categories
 export const fetchCategories = createAsyncThunk(
   "transactions/fetchCategories",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/transactions/categories");
-      if (!response.ok) {
-        throw new Error("Failed to fetch categories");
-      }
-      return await response.json();
+      return await apiGet("/api/transactions/categories");
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-// Fetch category breakdown
+// Fetch category breakdown for charts
 export const fetchCategoryBreakdown = createAsyncThunk(
   "transactions/fetchCategoryBreakdown",
   async (type = "expense", { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `/api/transactions/category-breakdown?type=${type}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch category breakdown");
-      }
-      return await response.json();
+      return await apiGet(`/api/transactions/category-breakdown?type=${type}`);
     } catch (error) {
       return rejectWithValue(error.message);
     }

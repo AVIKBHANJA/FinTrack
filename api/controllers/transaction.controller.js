@@ -1,3 +1,9 @@
+/**
+ * Transaction Controller
+ * Handles all transaction-related API endpoints
+ * All operations are user-scoped - users can only access their own transactions
+ */
+
 import Transaction, {
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES,
@@ -5,7 +11,10 @@ import Transaction, {
 import { errorHandler } from "../utils/error.js";
 import mongoose from "mongoose";
 
-// Get categories
+/**
+ * Get available transaction categories
+ * Returns predefined expense and income categories
+ */
 export const getCategories = async (req, res, next) => {
   try {
     res.status(200).json({
@@ -17,11 +26,14 @@ export const getCategories = async (req, res, next) => {
   }
 };
 
-// Create a new transaction
+/**
+ * Create a new transaction
+ * All transactions are automatically linked to the authenticated user
+ */
 export const createTransaction = async (req, res, next) => {
   try {
     const { amount, description, date, type, category } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.id; // Get user ID from authenticated request
 
     // Validation
     if (!amount || !description || !type || !category) {
@@ -66,7 +78,10 @@ export const createTransaction = async (req, res, next) => {
   }
 };
 
-// Get all transactions
+/**
+ * Get all transactions for the authenticated user
+ * Supports optional query parameters for filtering and pagination
+ */
 export const getTransactions = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -78,7 +93,10 @@ export const getTransactions = async (req, res, next) => {
   }
 };
 
-// Get a single transaction
+/**
+ * Get a single transaction by ID
+ * Returns 404 if the transaction is not found
+ */
 export const getTransaction = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -97,7 +115,11 @@ export const getTransaction = async (req, res, next) => {
   }
 };
 
-// Update a transaction
+/**
+ * Update an existing transaction
+ * Only the transaction fields can be updated
+ * Returns 404 if the transaction is not found
+ */
 export const updateTransaction = async (req, res, next) => {
   try {
     const { amount, description, date, type, category } = req.body;
@@ -145,7 +167,10 @@ export const updateTransaction = async (req, res, next) => {
   }
 };
 
-// Delete a transaction
+/**
+ * Delete a transaction by ID
+ * Returns 404 if the transaction is not found
+ */
 export const deleteTransaction = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -164,7 +189,10 @@ export const deleteTransaction = async (req, res, next) => {
   }
 };
 
-// Get monthly expenses for chart
+/**
+ * Get monthly expenses for the authenticated user
+ * Returns an array of objects with month, amount, and count fields
+ */
 export const getMonthlyExpenses = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -224,7 +252,10 @@ export const getMonthlyExpenses = async (req, res, next) => {
   }
 };
 
-// Get category-wise breakdown
+/**
+ * Get category-wise breakdown of transactions
+ * Supports optional query parameter for transaction type (income/expense)
+ */
 export const getCategoryBreakdown = async (req, res, next) => {
   try {
     const { type = "expense" } = req.query;

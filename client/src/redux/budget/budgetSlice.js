@@ -1,22 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { apiGet, apiPost, apiDelete } from "../../utils/api.js";
 
-// Async thunks for budget API calls
+/**
+ * Budget Redux Slice
+ * Manages all budget-related state and API calls
+ * All API calls are authenticated and user-scoped
+ */
+
+// Async thunks for budget API calls with authentication
 export const createOrUpdateBudget = createAsyncThunk(
   "budgets/createOrUpdateBudget",
   async (budgetData, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/budgets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(budgetData),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to create/update budget");
-      }
-      return await response.json();
+      return await apiPost("/api/budgets", budgetData);
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -27,11 +23,7 @@ export const fetchBudgets = createAsyncThunk(
   "budgets/fetchBudgets",
   async ({ month, year }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/budgets?month=${month}&year=${year}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch budgets");
-      }
-      return await response.json();
+      return await apiGet(`/api/budgets?month=${month}&year=${year}`);
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -42,13 +34,9 @@ export const fetchBudgetComparison = createAsyncThunk(
   "budgets/fetchBudgetComparison",
   async ({ month, year }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
+      return await apiGet(
         `/api/budgets/comparison?month=${month}&year=${year}`
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch budget comparison");
-      }
-      return await response.json();
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -59,13 +47,7 @@ export const fetchSpendingInsights = createAsyncThunk(
   "budgets/fetchSpendingInsights",
   async ({ month, year }, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `/api/budgets/insights?month=${month}&year=${year}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch spending insights");
-      }
-      return await response.json();
+      return await apiGet(`/api/budgets/insights?month=${month}&year=${year}`);
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -76,14 +58,8 @@ export const deleteBudget = createAsyncThunk(
   "budgets/deleteBudget",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/budgets/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to delete budget");
-      }
-      return id;
+      await apiDelete(`/api/budgets/${id}`);
+      return id; // Return ID for state update
     } catch (error) {
       return rejectWithValue(error.message);
     }

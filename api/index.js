@@ -1,3 +1,18 @@
+/**
+ * Personal Finance Tracker - Main Server File
+ *
+ * This application provides a complete personal finance management system with:
+ * - User authentication (registration, login, logout)
+ * - Transaction tracking (income and expenses)
+ * - Budget management and comparison
+ * - Financial insights and analytics
+ *
+ * IMPORTANT: All user data is isolated and secure
+ * - Each user can only access their own transactions and budgets
+ * - Authentication is required for all financial data endpoints
+ * - JWT tokens are used for session management
+ */
+
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
