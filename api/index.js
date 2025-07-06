@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import authRoutes from "./routes/auth.route.js";
 import transactionRoutes from "./routes/transaction.route.js";
 import budgetRoutes from "./routes/budget.route.js";
 import cookieParser from "cookie-parser";
@@ -28,6 +29,7 @@ app.listen(3001, () => {
   console.log("Server is running on port 3001!");
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/budgets", budgetRoutes);
 

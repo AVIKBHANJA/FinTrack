@@ -3,6 +3,7 @@ import Transaction, {
   INCOME_CATEGORIES,
 } from "../models/transaction.model.js";
 import { errorHandler } from "../utils/error.js";
+import mongoose from "mongoose";
 
 // Get categories
 export const getCategories = async (req, res, next) => {
@@ -20,6 +21,7 @@ export const getCategories = async (req, res, next) => {
 export const createTransaction = async (req, res, next) => {
   try {
     const { amount, description, date, type, category } = req.body;
+    const userId = req.user.id;
 
     // Validation
     if (!amount || !description || !type || !category) {
@@ -49,6 +51,7 @@ export const createTransaction = async (req, res, next) => {
     }
 
     const newTransaction = new Transaction({
+      userId,
       amount,
       description,
       date: date ? new Date(date) : new Date(),
@@ -66,7 +69,8 @@ export const createTransaction = async (req, res, next) => {
 // Get all transactions
 export const getTransactions = async (req, res, next) => {
   try {
-    const transactions = await Transaction.find().sort({ date: -1 });
+    const userId = req.user.id;
+    const transactions = await Transaction.find({ userId }).sort({ date: -1 });
 
     res.status(200).json(transactions);
   } catch (error) {
@@ -77,7 +81,11 @@ export const getTransactions = async (req, res, next) => {
 // Get a single transaction
 export const getTransaction = async (req, res, next) => {
   try {
-    const transaction = await Transaction.findById(req.params.id);
+    const userId = req.user.id;
+    const transaction = await Transaction.findOne({
+      _id: req.params.id,
+      userId,
+    });
 
     if (!transaction) {
       return next(errorHandler(404, "Transaction not found"));
@@ -93,6 +101,7 @@ export const getTransaction = async (req, res, next) => {
 export const updateTransaction = async (req, res, next) => {
   try {
     const { amount, description, date, type, category } = req.body;
+    const userId = req.user.id;
 
     // Validation
     if (amount !== undefined && amount <= 0) {
@@ -114,8 +123,8 @@ export const updateTransaction = async (req, res, next) => {
       }
     }
 
-    const updatedTransaction = await Transaction.findByIdAndUpdate(
-      req.params.id,
+    const updatedTransaction = await Transaction.findOneAndUpdate(
+      { _id: req.params.id, userId },
       {
         ...(amount && { amount }),
         ...(description && { description }),
@@ -139,9 +148,11 @@ export const updateTransaction = async (req, res, next) => {
 // Delete a transaction
 export const deleteTransaction = async (req, res, next) => {
   try {
-    const deletedTransaction = await Transaction.findByIdAndDelete(
-      req.params.id
-    );
+    const userId = req.user.id;
+    const deletedTransaction = await Transaction.findOneAndDelete({
+      _id: req.params.id,
+      userId,
+    });
 
     if (!deletedTransaction) {
       return next(errorHandler(404, "Transaction not found"));
@@ -156,11 +167,13 @@ export const deleteTransaction = async (req, res, next) => {
 // Get monthly expenses for chart
 export const getMonthlyExpenses = async (req, res, next) => {
   try {
+    const userId = req.user.id;
     const currentYear = new Date().getFullYear();
 
     const monthlyExpenses = await Transaction.aggregate([
       {
         $match: {
+          userId: new mongoose.Types.ObjectId(userId),
           type: "expense",
           date: {
             $gte: new Date(currentYear, 0, 1),
@@ -215,10 +228,14 @@ export const getMonthlyExpenses = async (req, res, next) => {
 export const getCategoryBreakdown = async (req, res, next) => {
   try {
     const { type = "expense" } = req.query;
+    const userId = req.user.id;
 
     const categoryBreakdown = await Transaction.aggregate([
       {
-        $match: { type },
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          type,
+        },
       },
       {
         $group: {

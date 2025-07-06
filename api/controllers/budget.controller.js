@@ -2,11 +2,13 @@ import Budget from "../models/budget.model.js";
 import Transaction from "../models/transaction.model.js";
 import { EXPENSE_CATEGORIES } from "../models/transaction.model.js";
 import { errorHandler } from "../utils/error.js";
+import mongoose from "mongoose";
 
 // Create or update budget
 export const createOrUpdateBudget = async (req, res, next) => {
   try {
     const { category, amount, month, year } = req.body;
+    const userId = req.user.id;
 
     // Validation
     if (!category || !amount || !month || !year) {
@@ -33,7 +35,7 @@ export const createOrUpdateBudget = async (req, res, next) => {
 
     // Try to update existing budget or create new one
     const budget = await Budget.findOneAndUpdate(
-      { category, month, year },
+      { userId, category, month, year },
       { amount },
       { new: true, upsert: true }
     );
@@ -48,12 +50,14 @@ export const createOrUpdateBudget = async (req, res, next) => {
 export const getBudgets = async (req, res, next) => {
   try {
     const { month, year } = req.query;
+    const userId = req.user.id;
 
     if (!month || !year) {
       return next(errorHandler(400, "Month and year are required"));
     }
 
     const budgets = await Budget.find({
+      userId,
       month: parseInt(month),
       year: parseInt(year),
     }).sort({ category: 1 });

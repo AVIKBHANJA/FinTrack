@@ -6,8 +6,12 @@ import {
   deleteBudget,
   getSpendingInsights,
 } from "../controllers/budget.controller.js";
+import { verifyToken } from "../middleware/auth.js";
 
 const router = express.Router();
+
+// All budget routes require authentication
+router.use(verifyToken);
 
 router.post("/", createOrUpdateBudget);
 router.get("/", getBudgets);

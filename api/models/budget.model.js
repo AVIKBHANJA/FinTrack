@@ -3,6 +3,11 @@ import { EXPENSE_CATEGORIES } from "./transaction.model.js";
 
 const budgetSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     category: {
       type: String,
       required: true,
@@ -28,8 +33,11 @@ const budgetSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Ensure unique budget per category per month/year
-budgetSchema.index({ category: 1, month: 1, year: 1 }, { unique: true });
+// Ensure unique budget per category per month/year per user
+budgetSchema.index(
+  { userId: 1, category: 1, month: 1, year: 1 },
+  { unique: true }
+);
 
 const Budget = mongoose.model("Budget", budgetSchema);
 
