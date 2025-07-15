@@ -14,7 +14,7 @@
     "personal",
     "budget"
   ],
-  "author": "",
+  "author": "Avik Bhanja",
   "license": "ISC",
   "description": "A personal finance visualizer web application",
   "dependencies": {
